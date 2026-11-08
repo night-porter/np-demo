@@ -1,0 +1,37 @@
+name: Demo review
+
+# Posts a review on a PR as the demo reviewer GitHub App, for Night Porter demo recordings.
+# Needs the repo variable REVIEWER_CLIENT_ID and secret REVIEWER_PRIVATE_KEY.
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: PR number
+        required: true
+
+permissions: {}
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.REVIEWER_CLIENT_ID }}
+          private-key: ${{ secrets.REVIEWER_PRIVATE_KEY }}
+      - env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          PR: ${{ inputs.pr }}
+        run: |
+          gh api "repos/${{ github.repository }}/pulls/$PR/reviews" --input - <<'JSON'
+          {
+            "event": "COMMENT",
+            "comments": [
+              { "path": "src/users.js", "line": 1,
+                "body": "Can we rename `getUser` to `fetchUser`? It makes a network call, and `get` reads like a cheap lookup." },
+              { "path": "src/profile.js", "line": 5,
+                "body": "Some users have no email. Show just the name in that case instead of `Ada <undefined>`." }
+            ]
+          }
+          JSON
