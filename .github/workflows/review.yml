@@ -28,7 +28,7 @@ jobs:
           {
             "event": "COMMENT",
             "comments": [
-              { "path": "src/users.js", "line": 1,
+              { "path": "src/profile.js", "line": 1,
                 "body": "Can we rename `getUser` to `fetchUser`? It makes a network call, and `get` reads like a cheap lookup." },
               { "path": "src/profile.js", "line": 5,
                 "body": "Some users have no email. Show just the name in that case instead of `Ada <undefined>`." }
